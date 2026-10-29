@@ -1,0 +1,49 @@
+{
+  "pipeline": {
+    "name": "Website Sales",
+    "stages": [
+      "New Lead (No Site)",
+      "New Lead (Dated Site)",
+      "Contacted",
+      "Replied / Interested",
+      "Demo Booked",
+      "Proposal Sent",
+      "Won",
+      "Lost"
+    ]
+  },
+  "custom_fields": [
+    {"name": "Lead Score", "key": "lead_score", "dataType": "NUMERICAL"},
+    {"name": "Website Status", "key": "website_status", "dataType": "TEXT"},
+    {"name": "Website Issues", "key": "website_issues", "dataType": "LARGE_TEXT"},
+    {"name": "Business Category", "key": "business_category", "dataType": "TEXT"},
+    {"name": "Google Rating", "key": "google_rating", "dataType": "TEXT"},
+    {"name": "Review Count", "key": "review_count", "dataType": "NUMERICAL"},
+    {"name": "Lead Source Detail", "key": "lead_source_detail", "dataType": "TEXT"},
+    {"name": "Demo Site URL", "key": "demo_site_url", "dataType": "TEXT"}
+  ],
+  "tags": [
+    "lead-olivine",
+    "no-website",
+    "dated-website",
+    "site-unreachable",
+    "hot-lead",
+    "warm-lead",
+    "cold-lead",
+    "outreach-started",
+    "replied",
+    "do-not-contact"
+  ],
+  "custom_values": {
+    "offer_name": "Done-For-You Website + Lead Capture",
+    "offer_setup_price": "$997",
+    "offer_monthly_price": "$97/mo",
+    "booking_link": "REPLACE_WITH_YOUR_GHL_CALENDAR_LINK",
+    "sender_name": "REPLACE_WITH_YOUR_NAME",
+    "agency_name": "REPLACE_WITH_YOUR_AGENCY_NAME"
+  },
+  "opportunity_value": {
+    "no_site": 997,
+    "dated_site": 1497
+  }
+}
