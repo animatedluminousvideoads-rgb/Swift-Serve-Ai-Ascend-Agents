@@ -1,0 +1,42 @@
+name: Sync AI call outcomes
+
+# Every 15 minutes during US business hours: turn finished Voice AI calls into
+# pipeline stages, notes, rep tasks, DND flags and promised preview-link texts.
+on:
+  schedule:
+    - cron: "*/15 13-23 * * 1-5"
+    - cron: "*/15 0-1 * * 2-6"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ascend-ghl
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: vars.ASCEND_PAUSED != 'true'
+    runs-on: ubuntu-latest
+    env:
+      GHL_API_TOKEN: ${{ secrets.GHL_API_TOKEN }}
+      GHL_LOCATION_ID: ${{ secrets.GHL_LOCATION_ID }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ASCEND_SUPPRESS_NUMBERS: ${{ secrets.ASCEND_SUPPRESS_NUMBERS }}
+    steps:
+      - name: Check configuration
+        id: cfg
+        run: |
+          if [ -n "$GHL_API_TOKEN" ] && [ -n "$GHL_LOCATION_ID" ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.ready == 'true'
+      - uses: actions/setup-python@v5
+        if: steps.cfg.outputs.ready == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+      - if: steps.cfg.outputs.ready == 'true'
+        run: pip install -e .
+      - if: steps.cfg.outputs.ready == 'true'
+        run: ascend sync --hours 6

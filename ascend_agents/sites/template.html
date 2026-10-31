@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>$title</title>
+<meta name="description" content="$meta_description">
+<style>
+  :root {
+    --accent: $accent;
+    --accent-ink: #ffffff;
+    --ink: #14181f;
+    --muted: #5b6472;
+    --bg: #ffffff;
+    --soft: #f4f6f9;
+    --line: #e3e7ee;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+  .concept { background: #1d2430; color: #e9edf3; font-size: 13px; text-align: center; padding: 8px 16px; }
+  .concept strong { color: #fff; }
+  header { position: sticky; top: 0; background: rgba(255,255,255,.95); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); z-index: 10; }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; }
+  .brand { font-weight: 800; font-size: 18px; letter-spacing: -.01em; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 999px; font-weight: 700; text-decoration: none; border: 2px solid var(--accent); cursor: pointer; font-size: 15px; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-ghost { background: transparent; color: var(--accent); }
+  .hero { background: linear-gradient(180deg, var(--soft), #fff); padding: 72px 0 56px; }
+  .hero h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.1; margin: 0 0 16px; letter-spacing: -.02em; max-width: 18ch; }
+  .hero p { font-size: 19px; color: var(--muted); max-width: 56ch; margin: 0 0 28px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .rating { display: inline-flex; align-items: center; gap: 6px; margin-top: 24px; font-size: 14px; color: var(--muted); text-decoration: none; }
+  .rating .stars { color: #f5a623; letter-spacing: 1px; }
+  section { padding: 64px 0; }
+  h2 { font-size: clamp(26px, 3.5vw, 34px); margin: 0 0 12px; letter-spacing: -.01em; }
+  .lead { color: var(--muted); margin: 0 0 32px; max-width: 60ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+  .card { border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; background: #fff; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); }
+  .why { background: var(--soft); }
+  .why ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .why li { background: #fff; border-radius: var(--radius); padding: 18px 20px; font-weight: 600; border-left: 4px solid var(--accent); }
+  .split { display: grid; gap: 32px; grid-template-columns: 1fr; align-items: center; }
+  @media (min-width: 820px) { .split { grid-template-columns: 1.1fr 1fr; } }
+  .chat { border: 1px solid var(--line); border-radius: 20px; padding: 18px; background: #fff; box-shadow: 0 12px 40px rgba(20,24,31,.08); }
+  .chat .top { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 14px; font-weight: 700; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #21c063; }
+  .msg { padding: 10px 14px; border-radius: 16px; margin: 8px 0; max-width: 85%; }
+  .bot { background: var(--soft); }
+  .user { background: var(--accent); color: var(--accent-ink); margin-left: auto; }
+  .time { font-size: 12px; color: var(--muted); text-align: center; }
+  .cta-band { background: var(--accent); color: var(--accent-ink); text-align: center; }
+  .cta-band h2 { color: inherit; }
+  .cta-band .btn { background: #fff; color: var(--accent); border-color: #fff; }
+  footer { padding: 32px 0; font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; }
+  .bubble { position: fixed; right: 20px; bottom: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); border: 0; box-shadow: 0 8px 24px rgba(0,0,0,.2); font-size: 26px; cursor: pointer; z-index: 20; }
+  .panel { position: fixed; right: 20px; bottom: 92px; width: min(360px, calc(100vw - 40px)); display: none; z-index: 20; }
+  .panel.open { display: block; }
+  @media (max-width: 520px) { header .btn { padding: 10px 16px; font-size: 14px; } header .num { display: none; } }
+</style>
+</head>
+<body>
+<div class="concept"><strong>Concept preview</strong> built for $name by $agency. This is not the official website of $name.</div>
+<header>
+  <div class="wrap">
+    <div class="brand">$name</div>
+    $header_call
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1>$headline</h1>
+      <p>$subheadline</p>
+      <div class="actions">
+        $hero_call
+        <a class="btn btn-ghost" href="#assistant">Message us 24/7</a>
+      </div>
+      $rating_badge
+    </div>
+  </section>
+
+  <section id="services">
+    <div class="wrap">
+      <h2>Services</h2>
+      <p class="lead">$services_lead</p>
+      <div class="grid">
+        $services
+      </div>
+    </div>
+  </section>
+
+  <section class="why">
+    <div class="wrap">
+      <h2>Why customers choose us</h2>
+      <ul>
+        $why_us
+      </ul>
+    </div>
+  </section>
+
+  <section id="assistant">
+    <div class="wrap split">
+      <div>
+        <h2>Never miss a customer again</h2>
+        <p class="lead">Calls, texts and web forms get an answer in seconds, even at 2am. Our 24/7 AI assistant answers questions, captures the details and books the appointment straight onto the calendar.</p>
+        <p class="lead" style="margin-top:-16px">$about</p>
+      </div>
+      <div class="chat" aria-label="Example conversation with the 24/7 assistant">
+        <div class="top"><span class="dot"></span>$name · Assistant</div>
+        <div class="time">Today, 10:42 PM</div>
+        <div class="msg bot">$assistant_greeting</div>
+        <div class="msg user">$sample_question</div>
+        <div class="msg bot">$sample_reply</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap">
+      <h2>Ready when you are</h2>
+      <p>Serving $service_area.</p>
+      $band_call
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; $name · $service_area</span>
+    <span>Concept by $agency$claim_link</span>
+  </div>
+</footer>
+
+<div class="panel" id="panel">
+  <div class="chat">
+    <div class="top"><span class="dot"></span>$name · Assistant</div>
+    <div class="msg bot">$assistant_greeting</div>
+    <div class="msg bot">This is a demo of the 24/7 assistant included with this concept site.</div>
+  </div>
+</div>
+<button class="bubble" id="bubble" aria-label="Open chat assistant demo" aria-expanded="false">💬</button>
+<script>
+  (function () {
+    var bubble = document.getElementById("bubble");
+    var panel = document.getElementById("panel");
+    bubble.addEventListener("click", function () {
+      var open = panel.classList.toggle("open");
+      bubble.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  })();
+</script>
+</body>
+</html>

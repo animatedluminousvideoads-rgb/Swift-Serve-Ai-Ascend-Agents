@@ -1,0 +1,40 @@
+name: GHL setup
+
+# Run once after adding secrets (and again after editing config/campaign.yaml):
+# creates the custom fields and the Voice AI cold-calling agent in GoHighLevel,
+# then checks the pipeline + call workflow. Optionally has the agent call you.
+on:
+  workflow_dispatch:
+    inputs:
+      test_call:
+        description: "Have the AI agent call the ASCEND_TEST_PHONE secret number"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ascend-ghl
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    env:
+      GHL_API_TOKEN: ${{ secrets.GHL_API_TOKEN }}
+      GHL_LOCATION_ID: ${{ secrets.GHL_LOCATION_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Create / update GHL fields and Voice AI agent
+        run: ascend setup
+      - name: Test call
+        if: inputs.test_call
+        env:
+          ASCEND_TEST_PHONE: ${{ secrets.ASCEND_TEST_PHONE }}
+        run: ascend test-call --phone "$ASCEND_TEST_PHONE"
