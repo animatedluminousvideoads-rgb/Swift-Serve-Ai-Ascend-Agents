@@ -1,0 +1,116 @@
+# Swift Serve AI Ascend: client-acquisition campaign.
+# Everything the autonomous pipeline does is driven from this file. Secrets
+# (API keys) never go here; they live in GitHub Actions secrets / env vars.
+
+agency:
+  name: Swift Serve AI Ascend
+  rep_name: Hiro Mamoru            # the human the AI caller books meetings for
+  ai_caller_name: Ava              # the Voice AI agent introduces itself as an AI with this name
+  offer: AI Inbound Lead Responder
+  offer_pitch: >-
+    an AI that answers every inbound call, text and web form 24/7, qualifies the
+    lead and books it straight onto your calendar
+  meeting: a quick 15-minute call with Hiro
+  # Optional: public booking link shown on demo sites ("Claim this site").
+  booking_url: ""
+
+# What to search for. avg_ticket drives the "estimated weekly revenue at risk"
+# figure (mid-range values from the outreach playbook).
+niches:
+  hvac:       {query: "HVAC contractor",         label: "HVAC",       avg_ticket: 2750}
+  plumbing:   {query: "plumber",                 label: "plumbing",   avg_ticket: 1650}
+  electrical: {query: "electrician",             label: "electrical", avg_ticket: 1200}
+  roofing:    {query: "roofing contractor",      label: "roofing",    avg_ticket: 14000}
+  dental:     {query: "dentist",                 label: "dental",     avg_ticket: 3500}
+  law:        {query: "personal injury lawyer",  label: "law",        avg_ticket: 9000}
+  med_spa:    {query: "med spa",                 label: "med spa",    avg_ticket: 900}
+
+# Cities to prospect. A market is only searched/dialed while its local time is
+# inside the calling window below.
+markets:
+  - {city: "New York, NY",    timezone: America/New_York}
+  - {city: "Miami, FL",       timezone: America/New_York}
+  - {city: "Atlanta, GA",     timezone: America/New_York}
+  - {city: "Chicago, IL",     timezone: America/Chicago}
+  - {city: "Houston, TX",     timezone: America/Chicago}
+  - {city: "Dallas, TX",      timezone: America/Chicago}
+  - {city: "Phoenix, AZ",     timezone: America/Phoenix}
+  - {city: "Los Angeles, CA", timezone: America/Los_Angeles}
+
+targeting:
+  # Sweet spot from the playbook: good-but-not-great businesses.
+  rating_sweet_spot: [3.5, 4.5]
+  min_score: 3                     # leads scoring below this are skipped
+  missed_leads_per_week: 1         # used for the revenue-at-risk estimate
+  audit_websites: true             # fetch the business site to check https / mobile
+  complaint_phrases:               # review text that signals slow or missed responses
+    - no callback
+    - never called back
+    - never call back
+    - didn't call back
+    - did not call back
+    - never got back
+    - didn't answer
+    - did not answer
+    - no one answered
+    - nobody answered
+    - never answered
+    - no answer
+    - missed call
+    - hard to reach
+    - couldn't reach
+    - could not reach
+    - couldn't get ahold
+    - couldn't get a hold
+    - slow response
+    - slow to respond
+    - never responded
+    - no response
+    - went to voicemail
+    - left a voicemail
+    - left a message
+    - left messages
+    - unresponsive
+
+limits:
+  searches_per_run: 2              # niche x market combinations searched per run
+  pages_per_search: 2              # Google returns up to 20 results per page
+  max_new_leads_per_run: 10
+  max_calls_per_run: 10
+  max_call_attempts: 2             # total AI call attempts per lead
+  retry_after_days: 2              # wait before re-trying a voicemail / no-decision lead
+
+calling:
+  # Local time of the business. TCPA allows 8am-9pm; business hours convert better.
+  days: [mon, tue, wed, thu, fri]
+  start: "09:30"
+  end: "16:30"
+  # Line types (from Twilio Lookup) the AI agent may call automatically. AI voices
+  # count as "artificial voice" under the TCPA, which needs prior express consent
+  # for mobile numbers, so mobile numbers are held for review by default.
+  auto_call_line_types: [landline, fixedVoip, nonFixedVoip, tollFree]
+  # What to do when the line type can't be verified (no Twilio credentials, or a
+  # failed lookup): "hold" = put in Needs Review, "call" = dial anyway.
+  unverified_line_policy: hold
+
+ghl:
+  pipeline_name: "Ascend AI Outbound"
+  stages:                          # pipeline stage names (create these in GHL)
+    ready: "Site Built"
+    review: "Needs Review"
+    queued: "AI Call Queued"
+    called: "Called - No Decision"
+    interested: "Interested"
+    booked: "Booked Call"
+    not_interested: "Not Interested"
+    dnc: "Do Not Call"
+  call_workflow_name: "Ascend AI Cold Call"
+  voice_agent_name: "Ascend Cold Caller"
+  booking_calendar_name: ""        # optional: GHL calendar the agent books into
+  agent_timezone: America/New_York
+  max_call_duration_seconds: 300
+
+sites:
+  output_dir: sites
+  # Where the generated sites are served. Default: this repo's GitHub Pages URL.
+  base_url: https://animatedluminousvideoads-rgb.github.io/Swift-Serve-Ai-Ascend-Agents

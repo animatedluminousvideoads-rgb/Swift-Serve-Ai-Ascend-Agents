@@ -1,0 +1,112 @@
+name: Acquire clients
+
+# Hourly through US business hours (the CLI only searches and dials markets that
+# are inside the calling window in their own time zone).
+on:
+  schedule:
+    - cron: "17 13-23 * * 1-5"
+    - cron: "17 0 * * 2-6"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build preview sites only (no GHL writes, no calls)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ascend-ghl
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    # Pause everything by setting the repository variable ASCEND_PAUSED=true.
+    if: vars.ASCEND_PAUSED != 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    env:
+      GHL_API_TOKEN: ${{ secrets.GHL_API_TOKEN }}
+      GHL_LOCATION_ID: ${{ secrets.GHL_LOCATION_ID }}
+      GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      ASCEND_SUPPRESS_NUMBERS: ${{ secrets.ASCEND_SUPPRESS_NUMBERS }}
+      ASCEND_DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+    steps:
+      - name: Check configuration
+        id: cfg
+        run: |
+          if [ -z "$GHL_API_TOKEN" ] || [ -z "$GHL_LOCATION_ID" ] || [ -z "$GOOGLE_PLACES_API_KEY" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "### Not configured yet" >> "$GITHUB_STEP_SUMMARY"
+            echo "Add the GHL_API_TOKEN, GHL_LOCATION_ID and GOOGLE_PLACES_API_KEY secrets (docs/SETUP.md)." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.ready == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.cfg.outputs.ready == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        if: steps.cfg.outputs.ready == 'true'
+        run: pip install -e .
+
+      - name: Sync call outcomes into GHL
+        if: steps.cfg.outputs.ready == 'true' && env.ASCEND_DRY_RUN != 'true'
+        run: ascend sync
+
+      - name: Find prospects, build demo sites, load into GHL
+        if: ${{ !cancelled() && steps.cfg.outputs.ready == 'true' }}
+        run: ascend prospect
+
+      - name: Commit new demo sites
+        id: commit
+        if: ${{ !cancelled() && steps.cfg.outputs.ready == 'true' && env.ASCEND_DRY_RUN != 'true' }}
+        run: |
+          git config user.name "ascend-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sites
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Add demo sites for new prospects"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/configure-pages@v5
+        if: ${{ !cancelled() && (steps.commit.outputs.changed == 'true' || (github.event_name == 'workflow_dispatch' && steps.cfg.outputs.ready == 'true' && env.ASCEND_DRY_RUN != 'true')) }}
+        continue-on-error: true
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ !cancelled() && (steps.commit.outputs.changed == 'true' || (github.event_name == 'workflow_dispatch' && steps.cfg.outputs.ready == 'true' && env.ASCEND_DRY_RUN != 'true')) }}
+        continue-on-error: true
+        with:
+          path: sites
+
+      - name: Publish demo sites (GitHub Pages)
+        id: deploy
+        if: ${{ !cancelled() && (steps.commit.outputs.changed == 'true' || (github.event_name == 'workflow_dispatch' && steps.cfg.outputs.ready == 'true' && env.ASCEND_DRY_RUN != 'true')) }}
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      - name: Warn if publishing failed
+        if: ${{ !cancelled() && steps.deploy.outcome == 'failure' }}
+        run: echo "⚠️ GitHub Pages deploy failed. Enable Pages with source 'GitHub Actions' (docs/SETUP.md step 1)." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Queue AI cold calls in GHL
+        if: ${{ !cancelled() && steps.cfg.outputs.ready == 'true' && env.ASCEND_DRY_RUN != 'true' }}
+        run: ascend dial
